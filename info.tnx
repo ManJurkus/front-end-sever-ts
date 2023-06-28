@@ -13,3 +13,4 @@
     - dist
     - .vscode
     - .DS_Store
+    10. "type": "module",
