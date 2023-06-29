@@ -85,8 +85,8 @@ server.httpServer = http.createServer(async (req: IncomingMessage, res: ServerRe
     if (isAPI) {
         console.log(httpMethod)
 
-        if (httpMethod ===  'get' && param === null) {
-            responseContent = 'sukursiu';
+        if (httpMethod ===  'get') {
+            responseContent = 'sukursiu';}
         
 
 
@@ -114,8 +114,8 @@ server.httpServer = http.createServer(async (req: IncomingMessage, res: ServerRe
 });
 
 server.init = () => {
-    server.httpServer.listen(4433, () => {
-        console.log('Serveris sukasi ant http://localhost:4433');
+    server.httpServer.listen(4410, () => {
+        console.log('Serveris sukasi ant http://localhost:4410');
     });
 };
 
