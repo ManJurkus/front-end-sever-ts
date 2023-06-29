@@ -56,6 +56,7 @@ server.httpServer = http.createServer(async (req: IncomingMessage, res: ServerRe
 
     if (isTextFile) {
         const [err, msg] = await file.readPublic(trimmedPath);
+        
         res.writeHead(err ? 404 : 200, {
             'Content-Type': MIMES[fileExtension],
             'cache-control': `max-age=60`,
@@ -69,6 +70,7 @@ server.httpServer = http.createServer(async (req: IncomingMessage, res: ServerRe
 
     if (isBinaryFile) {
         const [err, msg] = await file.readPublicBinary(trimmedPath);
+        
         res.writeHead(err ? 404 : 200, {
             'Content-Type': MIMES[fileExtension],
             'cache-control': `max-age=60`,
@@ -81,6 +83,13 @@ server.httpServer = http.createServer(async (req: IncomingMessage, res: ServerRe
     }
 
     if (isAPI) {
+        console.log(httpMethod)
+
+        if (httpMethod ===  'get' && param === null) {
+            responseContent = 'sukursiu';
+        
+
+
         responseContent = 'API DUOMENYS';
     }
 
@@ -105,8 +114,8 @@ server.httpServer = http.createServer(async (req: IncomingMessage, res: ServerRe
 });
 
 server.init = () => {
-    server.httpServer.listen(4410, () => {
-        console.log('Serveris sukasi ant http://localhost:4410');
+    server.httpServer.listen(4433, () => {
+        console.log('Serveris sukasi ant http://localhost:4433');
     });
 };
 
