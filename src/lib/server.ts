@@ -1,5 +1,9 @@
 import http, { IncomingMessage, ServerResponse } from 'node:http';
 import { file } from './file.js';
+import { StringDecoder } from 'node:string_decoder';
+import { log } from 'node:console';
+import { json } from 'stream/consumers';
+import { userInfo } from 'node:os';
 
 type Server = {
     init: () => void;
@@ -52,70 +56,126 @@ server.httpServer = http.createServer(async (req: IncomingMessage, res: ServerRe
         webmanifest: 'application/manifest+json',
     };
 
+    // console.log(trimmedPath);
+
     let responseContent: string | Buffer = 'ERROR: neturiu tai ko tu nori...';
+    let buffer = '';
+    const stringDecoder = new StringDecoder('utf-8');
 
-    if (isTextFile) {
-        const [err, msg] = await file.readPublic(trimmedPath);
-        
-        res.writeHead(err ? 404 : 200, {
-            'Content-Type': MIMES[fileExtension],
-            'cache-control': `max-age=60`,
-        });
-        if (err) {
-            responseContent = msg;
-        } else {
-            responseContent = msg;
-        }
-    }
 
-    if (isBinaryFile) {
-        const [err, msg] = await file.readPublicBinary(trimmedPath);
-        
-        res.writeHead(err ? 404 : 200, {
-            'Content-Type': MIMES[fileExtension],
-            'cache-control': `max-age=60`,
-        });
-        if (err) {
-            responseContent = msg;
-        } else {
-            responseContent = msg;
-        }
-    }
+    console.log(res); 
 
-    if (isAPI) {
-        console.log(httpMethod)
+    console.log(); 
+    
+    
 
-        if (httpMethod ===  'get') {
-            responseContent = 'sukursiu';}
+    req.on('data', (data) => {
+        buffer += stringDecoder.write(data);
+
+    });
+
+    req.on('end', async () => {
+        buffer += stringDecoder.end();
         
 
-
-        responseContent = 'API DUOMENYS';
-    }
-
-    if (isPage) {
-        let fileResponse = await file.read('../pages', trimmedPath + '.html');
-        let [err, msg] = fileResponse;
-
-        if (err) {
-            fileResponse = await file.read('../pages', '404.html');
-            err = fileResponse[0];
-            msg = fileResponse[1];
+        if (isTextFile) {
+            const [err, msg] = await file.readPublic(trimmedPath);
+            
+            res.writeHead(err ? 404 : 200, {
+                'Content-Type': MIMES[fileExtension],
+                'cache-control': `max-age=60`,
+            });
+            if (err) {
+                responseContent = msg;
+            } else {
+                responseContent = msg;
+            }
         }
+    
+        if (isBinaryFile) {
+            const [err, msg] = await file.readPublicBinary(trimmedPath);
+            
+            res.writeHead(err ? 404 : 200, {
+                'Content-Type': MIMES[fileExtension],
+                'cache-control': `max-age=60`,
+            });
+            if (err) {
+                responseContent = msg;
+            } else {
+                responseContent = msg;
+            }
+        }
+    
+        if (isAPI) {
 
-        res.writeHead(err ? 404 : 200, {
-            'Content-Type': MIMES.html,
-        });
 
-        responseContent = msg as string;
-    }
+            console.log(buffer);
 
-    return res.end(responseContent);
+
+            const jsonData = buffer ? JSON.parse(buffer) : {};
+
+            console.log(jsonData);
+                const newKey = "id";
+                let lastId = 0;
+                jsonData[newKey] = lastId;
+
+            
+            if( req.method === 'POST'){
+            const [err, msg] = await file.create('users', jsonData.email + '.json', jsonData);
+    
+            if(err){
+                responseContent = msg.toString();
+            } else {
+                responseContent = 'User created!';
+
+            }
+            }
+
+            
+            
+        }
+    
+        if (isPage) {
+            let fileResponse = await file.read('../pages', trimmedPath + '.html');
+            let [err, msg] = fileResponse;
+    
+            if (err) {
+                fileResponse = await file.read('../pages', '404.html');
+                err = fileResponse[0];
+                msg = fileResponse[1];
+            }
+    
+            res.writeHead(err ? 404 : 200, {
+                'Content-Type': MIMES.html,
+            });
+    
+            responseContent = msg as string;
+        }
+    
+        return res.end(responseContent);
+
+    });
+
+
+
+    
 });
 
+async function getInfo (info:string) {
+    // let fileResponse = await file.read('../.data/users', info);
+    
+
+    // return fileResponse;
+
+    
+
+}
+console.log(getInfo("jonas2@jonass.lt.json"));
+
+
 server.init = () => {
-    server.httpServer.listen(4410, () => {
-        console.log('Serveris sukasi ant http://localhost:4410');
+    server.httpServer.listen(4433, () => {
+        console.log('Serveris sukasi ant http://localhost:4433');
     });
 };
 
